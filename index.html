@@ -3,339 +3,179 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Travel Compass – Photo Finder</title>
+<title>Travel Compass – Photo Uploader</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{--blue:#003d82;--blue2:#0066cc;--accent:#00aaff;--gold:#ffaa00;--bg:#f0f4fa;--card:#fff;--text:#1a2540;--muted:#6b7a99;--border:#dde4f0;--green:#00c48c;--red:#ff4444;}
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-  header{background:linear-gradient(135deg,var(--blue),var(--blue2));padding:18px 32px;display:flex;align-items:center;gap:14px;box-shadow:0 4px 20px rgba(0,60,130,0.3)}
+  header{background:linear-gradient(135deg,var(--blue),var(--blue2));padding:18px 32px;box-shadow:0 4px 20px rgba(0,60,130,0.3)}
   header .logo{font-family:'Playfair Display',serif;font-size:22px;color:#fff;font-weight:700}
   header .subtitle{font-size:13px;color:rgba(255,255,255,0.7);font-weight:600}
-  .container{max-width:1100px;margin:0 auto;padding:32px 20px}
-  .search-panel{background:var(--card);border-radius:20px;padding:28px 32px;box-shadow:0 4px 24px rgba(0,60,130,0.08);margin-bottom:20px}
-  .search-panel h2{font-family:'Playfair Display',serif;font-size:20px;color:var(--blue);margin-bottom:20px}
-  .search-row{display:flex;gap:12px;flex-wrap:wrap}
-  .field-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px}
-  .field-group label{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
-  .field-group input{padding:12px 16px;border:2px solid var(--border);border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--text);outline:none;transition:border-color 0.2s;background:#f8faff}
-  .field-group input:focus{border-color:var(--accent);background:#fff}
-  .field-group input::placeholder{color:#b0bac8;font-weight:600}
-  .search-btn{align-self:flex-end;background:linear-gradient(135deg,var(--blue2),var(--accent));color:#fff;border:none;padding:13px 30px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:transform 0.15s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,100,200,0.3)}
-  .search-btn:hover{transform:translateY(-2px)}
-  .search-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
-  .upload-zone{background:linear-gradient(135deg,#fff8e8,#fffdf0);border:2px dashed var(--gold);border-radius:16px;padding:20px 24px;margin-bottom:20px}
-  .upload-zone h3{font-size:14px;font-weight:800;color:#a07000;margin-bottom:8px}
-  .upload-zone p{font-size:12px;color:#c09030;font-weight:600;margin-bottom:12px}
-  .slug-row{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-  .slug-prefix{font-size:13px;font-weight:800;color:#a07000;white-space:nowrap}
-  .slug-input{flex:1;min-width:150px;padding:10px 14px;border:2px solid #ffc947;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;color:var(--text);outline:none;background:#fffdf0}
-  .slug-input:focus{border-color:var(--gold);background:#fff}
-  .slug-input::placeholder{color:#c09030;font-weight:600}
-  .slug-preview{font-size:11px;color:#a07000;font-family:monospace;background:rgba(255,200,0,0.1);padding:4px 10px;border-radius:6px;font-weight:700;word-break:break-all}
-  .drop-area{border:2px dashed #ffc947;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.6)}
-  .drop-area:hover,.drop-area.dragover{background:rgba(255,255,255,0.9);border-color:var(--gold)}
-  .drop-area p{color:#a07000;font-weight:700;font-size:14px;margin-bottom:8px}
-  .drop-area small{color:#c09030;font-weight:600;font-size:12px}
-  .drop-area input{display:none}
-  .upload-progress{margin-top:12px;display:none}
-  .progress-bar{height:6px;background:#ffeaa0;border-radius:3px;overflow:hidden;margin-bottom:6px}
-  .progress-fill{height:100%;background:var(--gold);border-radius:3px;transition:width 0.3s;width:0%}
-  .progress-text{font-size:12px;font-weight:700;color:#a07000}
-  .uploaded-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-  .up-thumb{width:64px;height:48px;border-radius:8px;overflow:hidden;position:relative;border:2px solid var(--gold);cursor:pointer;transition:all 0.2s}
-  .up-thumb img{width:100%;height:100%;object-fit:cover}
-  .up-thumb.selected-up{border-color:var(--green);box-shadow:0 0 0 3px rgba(0,196,140,0.3)}
-  .up-thumb .up-check{position:absolute;top:2px;right:2px;background:var(--green);color:#fff;width:16px;height:16px;border-radius:50%;font-size:9px;display:none;align-items:center;justify-content:center;font-weight:900}
-  .up-thumb.selected-up .up-check{display:flex}
-  .up-thumb .up-rm{position:absolute;top:2px;left:2px;background:var(--red);color:#fff;border:none;width:16px;height:16px;border-radius:50%;font-size:9px;cursor:pointer;font-weight:900;display:flex;align-items:center;justify-content:center}
-  .main-layout{display:grid;grid-template-columns:1fr 290px;gap:24px;align-items:start}
-  .results-section{margin-bottom:24px}
-  .section-title{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-  .section-title .badge{background:var(--blue);color:#fff;font-size:11px;padding:2px 8px;border-radius:20px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px}
-  .photo-card{position:relative;border-radius:14px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:all 0.2s;aspect-ratio:4/3;background:#dde4f0;box-shadow:0 2px 10px rgba(0,0,0,0.08)}
-  .photo-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.3s}
-  .photo-card:hover img{transform:scale(1.05)}
-  .photo-card.selected{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,170,0,0.2)}
-  .photo-card .check{position:absolute;top:8px;right:8px;width:28px;height:28px;background:var(--gold);border-radius:50%;display:none;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:900}
-  .photo-card.selected .check{display:flex}
-  .photo-card .num{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.6);color:#fff;font-size:12px;font-weight:900;width:22px;height:22px;border-radius:50%;display:none;align-items:center;justify-content:center}
-  .photo-card.selected .num{display:flex}
-  .photo-card .credit{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);color:rgba(255,255,255,0.9);font-size:10px;padding:14px 8px 5px;font-weight:600}
-  .selected-panel{background:var(--card);border-radius:20px;padding:24px;box-shadow:0 4px 24px rgba(0,60,130,0.08);border:2px solid var(--border);position:sticky;top:20px}
-  .selected-panel h3{font-family:'Playfair Display',serif;font-size:17px;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
-  .count-badge{background:var(--gold);color:#fff;font-size:12px;padding:3px 10px;border-radius:20px;font-family:'Nunito',sans-serif;font-weight:800}
-  .sel-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;min-height:52px}
-  .sel-thumb{width:56px;height:42px;border-radius:8px;overflow:hidden;position:relative;border:2px solid var(--gold);flex-shrink:0}
-  .sel-thumb img{width:100%;height:100%;object-fit:cover}
-  .sel-thumb .rm{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--red);border-radius:50%;font-size:9px;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:900}
-  .empty-msg{color:var(--muted);font-size:13px;font-weight:600}
-  .links-box{background:#f0f4fa;border-radius:12px;padding:14px 16px;font-size:11px;font-family:monospace;color:var(--blue);word-break:break-all;line-height:1.7;border:1px solid var(--border);min-height:50px;margin-bottom:12px;font-weight:700}
-  .links-box.empty{color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px}
-  .copy-btn{width:100%;background:linear-gradient(135deg,var(--green),#00e0a0);color:#fff;border:none;padding:13px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
-  .copy-btn:hover{transform:translateY(-2px)}
-  .copy-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-  .copy-btn.done{background:linear-gradient(135deg,#444,#666)}
-  .clear-btn{width:100%;background:transparent;color:var(--red);border:2px solid var(--red);padding:10px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;margin-top:8px;transition:all 0.2s}
-  .clear-btn:hover{background:var(--red);color:#fff}
-  .loading{text-align:center;padding:40px;color:var(--muted);font-weight:700;font-size:15px}
-  .spinner{display:inline-block;width:36px;height:36px;border:4px solid var(--border);border-top-color:var(--blue2);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:12px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .placeholder{text-align:center;padding:60px;color:var(--muted);font-weight:700;font-size:15px}
-  @media(max-width:700px){.main-layout{grid-template-columns:1fr}.selected-panel{position:static}.search-row{flex-direction:column}.grid{grid-template-columns:repeat(2,1fr)}}
+  .container{max-width:900px;margin:0 auto;padding:28px 20px}
+  .card{background:var(--card);border-radius:20px;padding:28px;box-shadow:0 4px 24px rgba(0,60,130,0.08);margin-bottom:20px}
+  .card h2{font-family:'Playfair Display',serif;font-size:18px;color:var(--blue);margin-bottom:20px}
+  .drop-zone{border:3px dashed var(--border);border-radius:16px;padding:48px;text-align:center;cursor:pointer;transition:all 0.2s;background:#f8faff}
+  .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:#e8f4ff}
+  .drop-zone input{display:none}
+  .drop-zone .icon{font-size:48px;margin-bottom:12px}
+  .drop-zone .title{font-size:18px;font-weight:800;color:var(--blue);margin-bottom:6px}
+  .drop-zone .sub{font-size:13px;color:var(--muted);font-weight:600}
+  .queue{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:16px}
+  .q-item{position:relative;border-radius:12px;overflow:hidden;aspect-ratio:4/3;background:#dde4f0}
+  .q-item img{width:100%;height:100%;object-fit:cover}
+  .q-item .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+  .q-item.uploading .overlay{background:rgba(0,61,130,0.6);color:#fff}
+  .q-item.done .overlay{background:rgba(0,196,140,0.7);color:#fff;font-size:24px}
+  .q-item.error .overlay{background:rgba(255,68,68,0.7);color:#fff}
+  .q-item .rm{position:absolute;top:4px;right:4px;width:20px;height:20px;background:var(--red);border-radius:50%;font-size:10px;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-weight:900;z-index:10}
+  .upload-btn{width:100%;background:linear-gradient(135deg,var(--blue2),var(--accent));color:#fff;border:none;padding:16px;border-radius:14px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;cursor:pointer;margin-top:16px;transition:all 0.2s;box-shadow:0 4px 16px rgba(0,100,200,0.3)}
+  .upload-btn:hover{transform:translateY(-2px)}
+  .upload-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+  .progress-bar{height:8px;background:var(--border);border-radius:4px;margin-top:12px;overflow:hidden;display:none}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--blue2),var(--accent));border-radius:4px;transition:width 0.3s;width:0%}
+  .results-box{background:#f0f4fa;border-radius:12px;padding:16px;font-size:12px;font-family:monospace;color:var(--blue);word-break:break-all;line-height:2;border:1px solid var(--border);min-height:60px;font-weight:700;white-space:pre-wrap}
+  .results-box.empty{color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600}
+  .copy-btn{width:100%;background:linear-gradient(135deg,var(--green),#00e0a0);color:#fff;border:none;padding:14px;border-radius:12px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;margin-top:12px;transition:all 0.2s}
+  .copy-btn:disabled{opacity:0.4;cursor:not-allowed}
+  .stats{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .stat{background:#f0f4fa;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:800;color:var(--blue);border:1px solid var(--border)}
+  .clear-btn{width:100%;background:transparent;color:var(--red);border:2px solid var(--red);padding:10px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;margin-top:8px}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <div class="logo">🧭 Travel Compass</div>
-    <div class="subtitle">Photo Finder — Pexels + Upload στο travelcompass.gr</div>
-  </div>
+  <div class="logo">🧭 Travel Compass</div>
+  <div class="subtitle">Photo Uploader → ImgBB → Links για Google Sheet</div>
 </header>
 <div class="container">
-  <div class="search-panel">
-    <h2>🔍 Αναζήτηση Φωτογραφιών Προορισμού</h2>
-    <div class="search-row">
-      <div class="field-group">
-        <label>Προορισμός *</label>
-        <input type="text" id="destination" placeholder="π.χ. Naxos, Πράγα, Σαντορίνη" />
-      </div>
-      <div class="field-group">
-        <label>Ξενοδοχείο (προαιρετικό)</label>
-        <input type="text" id="hotel" placeholder="π.χ. Iliada Suites, Hilton" />
-      </div>
-      <button class="search-btn" onclick="doSearch()" id="searchBtn">🔎 Αναζήτηση</button>
-    </div>
+  <div class="card">
+    <h2>📸 Ανέβασε Φωτογραφίες</h2>
+    <label class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="image/*" multiple onchange="addFiles(this.files)">
+      <div class="icon">📁</div>
+      <div class="title">Σύρε φωτό εδώ ή κλικ για επιλογή</div>
+      <div class="sub">JPG, PNG, WEBP — πολλές μαζί</div>
+    </label>
+    <div class="queue" id="queue"></div>
+    <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+    <button class="upload-btn" id="uploadBtn" onclick="startUpload()" disabled>⬆️ Ανέβασε όλες στο ImgBB</button>
   </div>
 
-  <div class="upload-zone">
-    <h3>🏨 Ανέβασε Φωτό — αποθηκεύεται στο travelcompass.gr</h3>
-    <p>Συμπλήρωσε προορισμό και ξενοδοχείο για να πάρεις καθαρό link</p>
-    <div class="slug-row">
-      <span class="slug-prefix">📁 /photos/</span>
-      <input type="text" class="slug-input" id="slugDest" placeholder="naxos" oninput="updatePreview()"/>
-      <span class="slug-prefix">/</span>
-      <input type="text" class="slug-input" id="slugHotel" placeholder="iliada-suites" oninput="updatePreview()"/>
-      <span class="slug-preview" id="slugPreview">travelcompass.gr/photos/naxos/iliada-suites-1.jpg</span>
+  <div class="card">
+    <h2>🔗 Links για Google Sheet</h2>
+    <div class="stats">
+      <div class="stat">Σύνολο: <span id="statTotal">0</span></div>
+      <div class="stat">✅ Έτοιμες: <span id="statDone">0</span></div>
+      <div class="stat">❌ Σφάλμα: <span id="statError">0</span></div>
     </div>
-    <div class="drop-area" id="dropArea"
-      onclick="document.getElementById('fileInput').click()"
-      ondragover="ev(event,'dragover')" ondragleave="ev(event,'dragleave')" ondrop="ev(event,'drop')">
-      <p>📂 Σύρε φωτό εδώ ή κλικ για επιλογή</p>
-      <small>JPG, PNG, WEBP — ανεβαίνει αυτόματα στο travelcompass.gr</small>
-      <input type="file" id="fileInput" multiple accept="image/*" onchange="uploadFiles(this.files)"/>
-    </div>
-    <div class="upload-progress" id="uploadProgress">
-      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-      <div class="progress-text" id="progressText">Ανέβασμα...</div>
-    </div>
-    <div class="uploaded-grid" id="uploadedGrid"></div>
-  </div>
-
-  <div class="main-layout">
-    <div id="resultsArea">
-      <div class="placeholder">✈️ Γράψε προορισμό και πάτα Αναζήτηση</div>
-    </div>
-    <div class="selected-panel">
-      <h3>Επιλεγμένες <span class="count-badge" id="cntBadge">0</span></h3>
-      <div class="sel-thumbs" id="selThumbs"><span class="empty-msg">Δεν έχεις επιλέξει φωτό ακόμα.</span></div>
-      <div class="links-box empty" id="linksBox">Τα links θα εμφανιστούν εδώ...</div>
-      <button class="copy-btn" id="copyBtn" onclick="copyLinks()" disabled>📋 Αντιγραφή Links</button>
-      <button class="clear-btn" onclick="clearAll()">✕ Καθαρισμός</button>
-    </div>
+    <div class="results-box empty" id="resultsBox">Τα links θα εμφανιστούν εδώ μετά το ανέβασμα...</div>
+    <button class="copy-btn" id="copyBtn" onclick="copyLinks()" disabled>📋 Αντιγραφή όλων (με κόμα)</button>
+    <button class="clear-btn" onclick="clearAll()">✕ Καθαρισμός</button>
   </div>
 </div>
 
 <script>
-const PEXELS_KEY = 'GKYdiXuT1DQmv8fhoGyxiTwCTqfkBpeBPmme01tuFNVt0kUddg8dxJVq';
-const NETLIFY_TOKEN = 'nfp_9gcq3fUwGW5JaUR9ZjqUsDaCRv7pKVXw356c';
-const SITE_ID = 'de6b2431-a4ae-438c-b42a-4aa7be5da359';
+const API_KEY = '02fa04f9e2d885c26cbf1c6635041f4a';
+let files = [];
 
-let selected = [];
-let counters = {};
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag'); addFiles(e.dataTransfer.files); });
 
-function slugify(s){
-  return (s||'').toLowerCase().trim()
-    .replace(/[άα]/g,'a').replace(/[έε]/g,'e').replace(/[ήη]/g,'i')
-    .replace(/[ίιϊΐ]/g,'i').replace(/[όο]/g,'o').replace(/[ύυϋΰ]/g,'u')
-    .replace(/[ώω]/g,'o').replace(/θ/g,'th').replace(/χ/g,'ch').replace(/ψ/g,'ps')
-    .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'');
+function addFiles(newFiles) {
+  Array.from(newFiles).forEach(f => {
+    if (!f.type.startsWith('image/')) return;
+    files.push({id: Date.now()+Math.random(), file: f, status: 'pending', url: null, preview: URL.createObjectURL(f)});
+  });
+  renderQueue();
+  document.getElementById('uploadBtn').disabled = files.length === 0;
+  updateStats();
 }
 
-function updatePreview(){
-  const d=slugify(document.getElementById('slugDest').value)||'naxos';
-  const h=slugify(document.getElementById('slugHotel').value)||'iliada-suites';
-  document.getElementById('slugPreview').textContent=`travelcompass.gr/photos/${d}/${h}-1.jpg`;
+function renderQueue() {
+  document.getElementById('queue').innerHTML = files.map((f,i) => `
+    <div class="q-item ${f.status}">
+      <img src="${f.preview}"/>
+      <div class="overlay">${f.status==='done'?'✓':f.status==='uploading'?'⏳':f.status==='error'?'✗':''}</div>
+      ${f.status==='pending'?`<div class="rm" onclick="removeFile(${i})">✕</div>`:''}
+    </div>`).join('');
 }
 
-function ev(e,type){
-  e.preventDefault();
-  const a=document.getElementById('dropArea');
-  if(type==='dragover') a.classList.add('dragover');
-  else if(type==='dragleave') a.classList.remove('dragover');
-  else{a.classList.remove('dragover');uploadFiles(e.dataTransfer.files);}
+function removeFile(i) {
+  files.splice(i,1);
+  renderQueue();
+  document.getElementById('uploadBtn').disabled = files.length===0;
+  updateStats();
 }
 
-async function uploadFiles(files){
-  if(!files||!files.length) return;
-  const dest=slugify(document.getElementById('slugDest').value||document.getElementById('destination').value)||'general';
-  const hotel=slugify(document.getElementById('slugHotel').value||document.getElementById('hotel').value)||'photo';
-  if(!dest||!hotel){alert('⚠️ Συμπλήρωσε Προορισμό και Ξενοδοχείο πρώτα!');return;}
+async function startUpload() {
+  document.getElementById('uploadBtn').disabled = true;
+  document.getElementById('uploadBtn').textContent = '⏳ Ανεβάζει...';
+  document.getElementById('progressBar').style.display = 'block';
 
-  const prog=document.getElementById('uploadProgress');
-  const fill=document.getElementById('progressFill');
-  const txt=document.getElementById('progressText');
-  prog.style.display='block';
-  const key=`${dest}/${hotel}`;
-  if(!counters[key])counters[key]=0;
+  const pending = files.filter(f => f.status==='pending');
+  let done = 0;
 
-  for(let i=0;i<files.length;i++){
-    const file=files[i];
-    counters[key]++;
-    const ext=file.name.split('.').pop().toLowerCase()||'jpg';
-    const fname=`${hotel}-${counters[key]}.${ext}`;
-    const blobKey=`${dest}/${fname}`;
-    txt.textContent=`Ανέβασμα ${i+1}/${files.length}: ${fname}`;
-    fill.style.width=((i/files.length)*100)+'%';
-
-    try{
-      // Direct Netlify Blobs API call
-      const apiUrl=`https://api.netlify.com/api/v1/blobs/${SITE_ID}/site:photos/${encodeURIComponent(blobKey)}`;
-      const res=await fetch(apiUrl,{
-        method:'PUT',
-        headers:{
-          'Authorization':'Bearer '+NETLIFY_TOKEN,
-          'Content-Type':file.type||'image/jpeg'
-        },
-        body:file
-      });
-
-      if(res.ok || res.status===200 || res.status===201 || res.status===204){
-        const publicUrl=`https://api.netlify.com/api/v1/blobs/${SITE_ID}/site:photos/${encodeURIComponent(blobKey)}`;
-        txt.textContent=`✅ Ανέβηκε: ${fname}`;
-        addThumb(blobKey.replace(/[^a-z0-9]/gi,'_'), file, publicUrl);
-      } else {
-        const errText=await res.text().catch(()=>'');
-        alert(`⚠️ Σφάλμα ${res.status}: ${errText||'Άγνωστο σφάλμα'}`);
-      }
-    }catch(e){
-      alert('⚠️ Σφάλμα: '+e.message);
-    }
+  for (const f of pending) {
+    f.status = 'uploading';
+    renderQueue();
+    try {
+      const fd = new FormData();
+      fd.append('image', f.file);
+      fd.append('key', API_KEY);
+      const r = await fetch('https://api.imgbb.com/1/upload', {method:'POST', body:fd});
+      const d = await r.json();
+      if (d.success) { f.status='done'; f.url=d.data.image.url; }
+      else f.status='error';
+    } catch(e) { f.status='error'; }
+    done++;
+    document.getElementById('progressFill').style.width=(done/pending.length*100)+'%';
+    renderQueue();
+    updateStats();
+    updateResults();
   }
-  fill.style.width='100%';
-  setTimeout(()=>{prog.style.display='none';},3000);
+
+  document.getElementById('uploadBtn').textContent = '✅ Ολοκληρώθηκε!';
+  setTimeout(()=>{document.getElementById('uploadBtn').textContent='⬆️ Ανέβασε όλες στο ImgBB';document.getElementById('uploadBtn').disabled=false;},2000);
 }
 
-function addThumb(id,file,url){
-  const uid='u_'+id;
-  const grid=document.getElementById('uploadedGrid');
-  const div=document.createElement('div');
-  div.className='up-thumb';div.id='ut'+uid;div.title=url;
-  div.onclick=()=>toggleUp(uid,url,div);
-  // Show local preview immediately
-  const objUrl=URL.createObjectURL(file);
-  div.innerHTML=`<img src="${objUrl}"/>
-    <div class="up-check" id="uc${uid}">✓</div>
-    <button class="up-rm" onclick="event.stopPropagation();this.parentElement.remove()">✕</button>`;
-  grid.appendChild(div);
-  toggleUp(uid,url,div);
+function updateResults() {
+  const urls = files.filter(f=>f.url).map(f=>f.url);
+  if (!urls.length) return;
+  const box = document.getElementById('resultsBox');
+  box.className = 'results-box';
+  box.textContent = urls.join(',');
+  document.getElementById('copyBtn').disabled = false;
 }
 
-function toggleUp(id,url,el){
-  const i=selected.findIndex(s=>s.id===id);
-  if(i>=0){selected.splice(i,1);el.classList.remove('selected-up');}
-  else{selected.push({id,thumb:url,url});el.classList.add('selected-up');}
-  refreshPanel();
+function updateStats() {
+  document.getElementById('statTotal').textContent = files.length;
+  document.getElementById('statDone').textContent = files.filter(f=>f.status==='done').length;
+  document.getElementById('statError').textContent = files.filter(f=>f.status==='error').length;
 }
 
-async function getSmartKeywords(dest,hotel){
-  try{
-    const prompt=hotel
-      ?`Two Pexels search queries in English only. Destination "${dest}": famous landmarks scenery. Hotel type "${hotel}" in "${dest}": hotel room pool luxury interior. Reply ONLY JSON: {"dest":"...","hotel":"..."}`
-      :`Pexels search query in English for "${dest}" travel landmarks scenery. Reply ONLY JSON: {"dest":"..."}`;
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:80,messages:[{role:'user',content:prompt}]})});
-    const d=await r.json();
-    return JSON.parse((d.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
-  }catch(e){return{dest:dest+' landmark travel tourism',hotel:hotel?hotel+' hotel room luxury':null};}
-}
-
-async function pexelsFetch(q,n){
-  const r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(q)+'&per_page='+n+'&orientation=landscape',{headers:{Authorization:PEXELS_KEY}});
-  return(await r.json()).photos||[];
-}
-
-async function doSearch(){
-  const dest=document.getElementById('destination').value.trim();
-  const hotel=document.getElementById('hotel').value.trim();
-  if(!dest){document.getElementById('destination').focus();return;}
-  if(!document.getElementById('slugDest').value)document.getElementById('slugDest').value=slugify(dest);
-  if(hotel&&!document.getElementById('slugHotel').value)document.getElementById('slugHotel').value=slugify(hotel);
-  updatePreview();
-  const btn=document.getElementById('searchBtn');
-  btn.disabled=true;btn.textContent='⏳ Αναζήτηση...';
-  document.getElementById('resultsArea').innerHTML='<div class="loading"><div class="spinner"></div><br>Αναζήτηση φωτογραφιών...</div>';
-  try{
-    const kw=await getSmartKeywords(dest,hotel);
-    const[dp,hp]=await Promise.all([pexelsFetch(kw.dest||dest+' travel',20),kw.hotel?pexelsFetch(kw.hotel,12):Promise.resolve([])]);
-    const BL=['casino','las vegas','stadium','concert','poker'];
-    const fd=dp.filter(p=>!BL.some(b=>(p.alt||'').toLowerCase().includes(b)));
-    let html='';
-    if(fd.length)html+=`<div class="results-section"><div class="section-title">✈️ ${dest} <span class="badge">${fd.length} φωτό</span></div><div class="grid">${fd.map(p=>`<div class="photo-card" id="cp${p.id}" onclick="toggle('p${p.id}','${p.src.medium}','${p.src.large}')"><img src="${p.src.medium}" loading="lazy"/><div class="check">✓</div><div class="num" id="np${p.id}"></div><div class="credit">📷 ${p.photographer}</div></div>`).join('')}</div></div>`;
-    if(hp.length)html+=`<div class="results-section" style="margin-top:24px"><div class="section-title">🏨 ${hotel} <span class="badge">${hp.length} φωτό</span></div><div class="grid">${hp.map(p=>`<div class="photo-card" id="ch${p.id}" onclick="toggle('h${p.id}','${p.src.medium}','${p.src.large}')"><img src="${p.src.medium}" loading="lazy"/><div class="check">✓</div><div class="num" id="nh${p.id}"></div><div class="credit">📷 ${p.photographer}</div></div>`).join('')}</div></div>`;
-    if(!html)html='<div style="text-align:center;padding:40px;color:var(--muted);font-weight:700">😔 Δεν βρέθηκαν αποτελέσματα.</div>';
-    document.getElementById('resultsArea').innerHTML=html;
-    refreshCards();
-  }catch(e){
-    document.getElementById('resultsArea').innerHTML='<div style="text-align:center;padding:40px;color:var(--red);font-weight:700">⚠️ Πρόβλημα σύνδεσης.</div>';
-  }
-  btn.disabled=false;btn.textContent='🔎 Αναζήτηση';
-}
-
-function toggle(id,thumb,full){
-  const i=selected.findIndex(s=>s.id===id);
-  if(i>=0)selected.splice(i,1);else selected.push({id,thumb,url:full});
-  refreshCards();refreshPanel();
-}
-
-function refreshCards(){
-  document.querySelectorAll('.photo-card').forEach(el=>{
-    const id=el.id.slice(1);
-    const idx=selected.findIndex(s=>s.id===id);
-    el.classList.toggle('selected',idx>=0);
-    const n=document.getElementById('n'+id);
-    if(n)n.textContent=idx>=0?idx+1:'';
+function copyLinks() {
+  const urls = files.filter(f=>f.url).map(f=>f.url).join(',');
+  navigator.clipboard.writeText(urls).then(()=>{
+    const btn = document.getElementById('copyBtn');
+    btn.textContent='✅ Αντιγράφηκαν!';
+    setTimeout(()=>btn.textContent='📋 Αντιγραφή όλων (με κόμα)',2500);
   });
 }
 
-function refreshPanel(){
-  const n=selected.length;
-  document.getElementById('cntBadge').textContent=n;
-  const tEl=document.getElementById('selThumbs');
-  const lEl=document.getElementById('linksBox');
-  const btn=document.getElementById('copyBtn');
-  if(!n){
-    tEl.innerHTML='<span class="empty-msg">Δεν έχεις επιλέξει φωτό ακόμα.</span>';
-    lEl.textContent='Τα links θα εμφανιστούν εδώ...';lEl.className='links-box empty';
-    btn.disabled=true;return;
-  }
-  tEl.innerHTML=selected.map((s,i)=>`<div class="sel-thumb"><img src="${s.thumb}"/><div class="rm" onclick="removeS(${i})">✕</div></div>`).join('');
-  lEl.textContent=selected.map(s=>s.url).join(',');
-  lEl.className='links-box';btn.disabled=false;btn.className='copy-btn';btn.textContent='📋 Αντιγραφή Links';
+function clearAll() {
+  files=[];
+  document.getElementById('queue').innerHTML='';
+  document.getElementById('resultsBox').className='results-box empty';
+  document.getElementById('resultsBox').textContent='Τα links θα εμφανιστούν εδώ μετά το ανέβασμα...';
+  document.getElementById('uploadBtn').disabled=true;
+  document.getElementById('copyBtn').disabled=true;
+  document.getElementById('progressBar').style.display='none';
+  document.getElementById('progressFill').style.width='0%';
+  updateStats();
 }
-
-function removeS(i){selected.splice(i,1);refreshCards();refreshPanel();}
-
-function copyLinks(){
-  navigator.clipboard.writeText(selected.map(s=>s.url).join(',')).then(()=>{
-    const btn=document.getElementById('copyBtn');
-    btn.textContent='✅ Αντιγράφηκαν!';btn.className='copy-btn done';
-    setTimeout(()=>{btn.textContent='📋 Αντιγραφή Links';btn.className='copy-btn';},2500);
-  });
-}
-
-function clearAll(){selected=[];refreshCards();refreshPanel();}
-document.addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
 </script>
 </body>
 </html>
